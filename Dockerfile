@@ -32,7 +32,8 @@ COPY ./Docker ./Docker
 
 RUN chmod +x ./Docker/scripts/* && dos2unix ./Docker/scripts/*
 
-RUN ./Docker/scripts/generate_database.sh
+# Skip database generation during build - will be done at runtime
+# RUN ./Docker/scripts/generate_database.sh
 
 RUN npm run build
 
@@ -61,4 +62,5 @@ ENV DOCKER_ENV=true
 
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+# Run both database generation and deployment at runtime when env vars are available
+ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/generate_database.sh && . ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
