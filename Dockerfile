@@ -64,5 +64,5 @@ ENV DOCKER_ENV=true
 
 EXPOSE 8080
 
-# Only run database deployment at runtime (migration needs actual database connection)
-ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+# Debug and run
+ENTRYPOINT ["/bin/bash", "-c", "echo '=== Environment Variables ===' && env | grep -E '(DATABASE|WEBHOOK)' | sort && echo '===========================' && . ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
