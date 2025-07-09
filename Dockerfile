@@ -32,8 +32,10 @@ COPY ./Docker ./Docker
 
 RUN chmod +x ./Docker/scripts/* && dos2unix ./Docker/scripts/*
 
-# Skip database generation during build - will be done at runtime
-# RUN ./Docker/scripts/generate_database.sh
+# Generate Prisma client during build (doesn't need database connection)
+# Use a default provider for build time
+ENV DATABASE_PROVIDER=postgresql
+RUN npx prisma generate --schema ./prisma/postgresql-schema.prisma
 
 RUN npm run build
 
@@ -62,5 +64,5 @@ ENV DOCKER_ENV=true
 
 EXPOSE 8080
 
-# Run both database generation and deployment at runtime when env vars are available
-ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/generate_database.sh && . ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
+# Only run database deployment at runtime (migration needs actual database connection)
+ENTRYPOINT ["/bin/bash", "-c", ". ./Docker/scripts/deploy_database.sh && npm run start:prod" ]
