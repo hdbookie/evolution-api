@@ -6,12 +6,19 @@ if [ "$DOCKER_ENV" != "true" ]; then
     export_env_vars
 fi
 
+# Export DATABASE_CONNECTION_URI to ensure it's available
+export DATABASE_CONNECTION_URI
+
 if [[ "$DATABASE_PROVIDER" == "postgresql" || "$DATABASE_PROVIDER" == "mysql" ]]; then
-    export DATABASE_URL
     echo "Deploying migrations for $DATABASE_PROVIDER"
-    echo "Database URL: $DATABASE_URL"
-    # rm -rf ./prisma/migrations
-    # cp -r ./prisma/$DATABASE_PROVIDER-migrations ./prisma/migrations
+    echo "Database URL: $DATABASE_CONNECTION_URI"
+    
+    # Check if DATABASE_CONNECTION_URI is empty
+    if [ -z "$DATABASE_CONNECTION_URI" ]; then
+        echo "Error: DATABASE_CONNECTION_URI is empty. Please set it in Railway environment variables."
+        exit 1
+    fi
+    
     npm run db:deploy
     if [ $? -ne 0 ]; then
         echo "Migration failed"
